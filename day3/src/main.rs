@@ -1,7 +1,9 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 fn main() {
     let mut res: u64 = 0;
+    let mut pos :u32 = 0; // {0, 1, 2}
+    let mut current_set: HashMap<char, u32> = HashMap::new();
     loop {
         let mut line = String::new();
         std::io::stdin().read_line(&mut line).expect("read line failed");
@@ -9,38 +11,44 @@ fn main() {
         if rucksack.is_empty() {
             break;
         }
-        let rucksack_size = rucksack.len();
-        let comparment_size = rucksack_size/2;
-
         let mut rucksack = rucksack.chars();
-        let mut first_compartment: HashSet<char> = HashSet::new();
-        let mut index: usize = 0;
-        while index < comparment_size {
-            first_compartment.insert(
-                match rucksack.next() {
-                    Some(item) => item,
-                    None => {
-                        println!("rucksack has run out, this shouldn't happen");
-                        break;
-                    }
-                }
-            );
-            index += 1;
-        }
-        while index < rucksack_size {
+        loop {
             let item = match rucksack.next() {
                 Some(item) => item,
-                None => {
-                    println!("rucksack has run out, this shouldn't happen");
-                    break;
-                }
+                None => break,
             };
-            if first_compartment.contains(&item) {
-                res += priority(item);
-                break;
+            match pos {
+                0 => {
+                    current_set.insert(item, 0);
+                }
+                1 => {
+                    match current_set.get(&item) {
+                        Some(value) => {
+                            if *value == 0 {
+                                current_set.insert(item, 1);
+                            }
+                        }
+                        None => ()
+                    }
+                }
+                2 => {
+                    match current_set.get(&item) {
+                        Some(value) => {
+                            if *value == 1 {
+                                res += priority(item);
+                                current_set.clear();
+                                break;
+                            }
+                        }
+                        None => ()
+                    }
+                }
+                _ => {
+                    panic!("invalid pos {}, must be 0 1 2", pos)
+                }
             }
-            index += 1;
         }
+        pos = (pos + 1)%3
     }
     println!("result is {}", res)
 }
