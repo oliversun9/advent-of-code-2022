@@ -50,10 +50,15 @@ fn main() {
             .expect("bad token")
             .parse::<usize>()
             .expect("not an int");
-        for _ in 1..=amount {
-            let top = stacks[from].pop().expect("popping from empty");
-            stacks[to].push(top);
+        // for _ in 1..=amount {
+        //     let top = stacks[from].pop().expect("popping from empty");
+        //     stacks[to].push(top);
+        // }
+        for i in stacks[from].len()-amount..stacks[from].len() {
+            let item = stacks[from][i];
+            stacks[to].push(item)
         }
+        stacks[from] = stacks[from][0..stacks[from].len()-amount].to_vec()
     }
     println!("result is:");
     let mut res = String::new();
